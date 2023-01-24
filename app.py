@@ -18,6 +18,10 @@ class MovieSchema(Schema):
     trailer = fields.Str()
     year = fields.Int()
     rating = fields.Float()
+    genre = fields.Str()
+    director = fields.Str()
+    director_id = fields.Int()
+    genre_id = fields.Int()
 
     def paginate(self, page, per_page):
         pass
@@ -91,12 +95,15 @@ class MovieView(Resource):
         new_rows = db.session.query(Movie).filter(Movie.id == uid).update(request.json)
         if new_rows != 1:
             return "Ошибка", 400
+
+        db.session.commit()
+
         return "Успешно", 204
 
     def delete(self, uid: int):
         deleted_rows = db.session.query(Movie).get(uid)
 
-        if deleted_rows != 1:
+        if not deleted_rows:
             return "", 400
 
         db.session.delete()
@@ -111,7 +118,7 @@ class DirectorView(Resource):
         all_directors = db.session.query(Director)
         return directors_schema.dump(all_directors), 200
 
-    def pst(self):
+    def post(self):
         request_json = request.json
         new_director = Director(**request_json)
 
@@ -135,12 +142,14 @@ class DirectorView(Resource):
         if new_rows != 1:
             return "", 400
 
+        db.session.commit()
+
         return "Успешно", 204
 
     def delete(self, uid: int):
         deleted_rows = db.session.query(Director).get(uid)
 
-        if deleted_rows != 1:
+        if not deleted_rows:
             return "", 400
 
         db.session.delete()
@@ -179,12 +188,14 @@ class GenreView(Resource):
         if new_rows != 1:
             return "", 400
 
+        db.session.commit()
+
         return "Успешно", 204
 
-    def delete(self, uid : int):
+    def delete(self, uid: int):
         deleted_rows = db.session.query(Genre).get(uid)
 
-        if deleted_rows != 1:
+        if not deleted_rows:
             return "", 400
 
         db.session.delete()
